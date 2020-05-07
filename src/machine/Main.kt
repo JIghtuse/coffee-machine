@@ -1,47 +1,101 @@
 package machine
 
-const val waterMlPerCup = 200
-const val milkMlPerCup = 50
-const val beansGPerCup = 15
+const val waterMlPerEspressoCup = 250
+const val milkMlPerEspressoCup = 0
+const val beansGPerEspressoCup = 16
+const val espressoCupCost = 4
 
-fun calculateNumberOfCupsForIngredients(waterMl: Int, milkMl: Int, beansG: Int): Int {
-    val numberOfCupsForGivenWater = waterMl / waterMlPerCup
-    val numberOfCupsForGivenMilk = milkMl / milkMlPerCup
-    val numberOfCupsForGivenBeans = beansG / beansGPerCup
+const val waterMlPerLatteCup = 350
+const val milkMlPerLatteCup = 75
+const val beansGPerLatteCup = 20
+const val latteCupCost = 7
 
-    return arrayListOf(numberOfCupsForGivenWater, numberOfCupsForGivenMilk, numberOfCupsForGivenBeans).min()!!
-}
-
-fun reportAbilityToMakeCoffee(numberOfCups: Int, numberOfCupsWhichCanBeMade: Int) {
-    when {
-        numberOfCups == numberOfCupsWhichCanBeMade ->
-            println("Yes, I can make that amount of coffee")
-        numberOfCups < numberOfCupsWhichCanBeMade -> {
-            val numberOfCupsOverAskedAmount = numberOfCupsWhichCanBeMade - numberOfCups
-            println("Yes, I can make that amount of coffee (and even $numberOfCupsOverAskedAmount more than that)")
-        }
-        numberOfCups > numberOfCupsWhichCanBeMade ->
-            println("No, I can make only $numberOfCupsWhichCanBeMade cups of coffee")
-    }
-}
+const val waterMlPerCappuccinoCup = 200
+const val milkMlPerCappuccinoCup = 100
+const val beansGPerCappuccinoCup = 12
+const val cappuccinoCupPrice = 6
 
 fun readInt(): Int {
     return readLine()!!.toInt()
 }
 
-fun main() {
-    print("Write how many ml of water the coffee machine has: ")
+fun reportState(waterMl: Int, milkMl: Int, beansG: Int, disposableCups: Int, money: Int) {
+    println()
+    println("The coffee machine has:")
+    println("$waterMl of water")
+    println("$milkMl of milk")
+    println("$beansG of coffee beans")
+    println("$disposableCups of disposable cups")
+    println("$money of money")
+    println()
+}
+
+fun buyCoffee(currentWaterMl: Int, currentMilkMl: Int, currentBeansG: Int, currentDisposableCups: Int, currentMoney: Int) {
+    println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: ")
+
+    when (val coffeeType = readInt()) {
+        1 -> reportState(
+                currentWaterMl - waterMlPerEspressoCup,
+                currentMilkMl - milkMlPerEspressoCup,
+                currentBeansG - beansGPerEspressoCup,
+                currentDisposableCups - 1,
+                currentMoney + espressoCupCost)
+        2 -> reportState(
+                currentWaterMl - waterMlPerLatteCup,
+                currentMilkMl - milkMlPerLatteCup,
+                currentBeansG - beansGPerLatteCup,
+                currentDisposableCups - 1,
+                currentMoney + latteCupCost)
+        3 -> reportState(
+                currentWaterMl - waterMlPerCappuccinoCup,
+                currentMilkMl - milkMlPerCappuccinoCup,
+                currentBeansG - beansGPerCappuccinoCup,
+                currentDisposableCups - 1,
+                currentMoney + cappuccinoCupPrice)
+        4 -> println("Unknown coffee type $coffeeType")
+    }
+}
+
+fun fillMachine(currentWaterMl: Int, currentMilkMl: Int, currentBeansG: Int, currentDisposableCups: Int, currentMoney: Int) {
+    print("Write how many ml of water do you want to add: ")
     val waterMl = readInt()
 
-    print("Write how many ml of milk the coffee machine has: ")
+    print("Write how many ml of milk do you want to add: ")
     val milkMl = readInt()
 
-    print("Write how many grams of coffee beans the coffee machine has: ")
+    print("Write how many grams of coffee beans do you want to add: ")
     val beansG = readInt()
 
-    print("Write how many cups of coffee you will need: ")
-    val numberOfCups = readLine()!!.toInt()
+    print("Write how many disposable cups of coffee do you want to add: ")
+    val disposableCups = readInt()
 
-    val numberOfCupsWhichCanBeMade = calculateNumberOfCupsForIngredients(waterMl, milkMl, beansG)
-    reportAbilityToMakeCoffee(numberOfCups, numberOfCupsWhichCanBeMade)
+    reportState(
+            currentWaterMl + waterMl,
+            currentMilkMl + milkMl,
+            currentBeansG + beansG,
+            currentDisposableCups + disposableCups,
+            currentMoney)
+}
+
+fun takeMoneyFromMachine(currentWaterMl: Int, currentMilkMl: Int, currentBeansG: Int, currentDisposableCups: Int, currentMoney: Int) {
+    println("I gave you $currentMoney")
+    reportState(currentWaterMl, currentMilkMl, currentBeansG, currentDisposableCups, 0)
+}
+
+fun main() {
+    val currentWaterMl = 400
+    val currentMilkMl = 540
+    val currentCoffeeBeansG = 120
+    val currentDisposableCups = 9
+    val currentMoney = 550
+
+    reportState(currentWaterMl, currentMilkMl, currentCoffeeBeansG, currentDisposableCups, currentMoney)
+
+    print("Write action (buy, fill, take): ")
+    when (val action = readLine()!!) {
+        "buy" -> buyCoffee(currentWaterMl, currentMilkMl, currentCoffeeBeansG, currentDisposableCups, currentMoney)
+        "fill" -> fillMachine(currentWaterMl, currentMilkMl, currentCoffeeBeansG, currentDisposableCups, currentMoney)
+        "take" -> takeMoneyFromMachine(currentWaterMl, currentMilkMl, currentCoffeeBeansG, currentDisposableCups, currentMoney)
+        else -> println("Unknown action '$action'")
+    }
 }
